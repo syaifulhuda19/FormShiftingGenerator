@@ -469,8 +469,8 @@ function exportPDF() {
     window.print();
     setTimeout(() => {
       pa.style.display = "none";
-    }, 800);
-  }, 150);
+    }, 1000);
+  }, 500);
 }
 
 document.addEventListener("keydown", (e) => {
