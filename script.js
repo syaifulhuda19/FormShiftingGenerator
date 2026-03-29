@@ -237,8 +237,6 @@ function setType(t) {
     "tab-btn" + (t === "lembur" ? " active" : "");
   document.getElementById("div-def-lokasi").style.display =
     t === "shift" ? "" : "none";
-  document.getElementById("div-spl").style.display =
-    t === "lembur" ? "" : "none";
   document.getElementById("sec3-title").textContent =
     t === "shift" ? "Jadwal Shift Malam" : "Jadwal Lembur";
   document.getElementById("sec3-hint").textContent =
@@ -331,36 +329,28 @@ function logosSVG() {
 
 function buildFormHTML() {
   syncEmp();
-  syncSPL();
   const { nama, posisi, lokasi, nik, leader } = S.emp;
   const isShift = S.type === "shift";
-  const title = isShift ? "FORM SHIFT MALAM" : "FORM TUNJANGAN KERJA";
   const pt = periodText();
 
+  // 1. HALAMAN PERTAMA (Tabel Rekap)
   const bodyRows = S.rows
     .map((r) => {
-      if (!r.on) {
-        return `<tr><td>${
-          r.no
-        }</td><td style="text-align:left;white-space:nowrap">${fmtDisplay(
+      if (!r.on)
+        return `<tr><td>${r.no}</td><td style="text-align:left">${fmtDisplay(
           r.dt
         )}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
-      }
       const sigCell = S.sigEmp
-        ? `<img src="${S.sigEmp}" style="height:16px;max-width:44px;object-fit:contain;display:inline-block">`
+        ? `<img src="${S.sigEmp}" style="height:16px;max-width:44px;object-fit:contain">`
         : "";
       if (isShift) {
-        return `<tr><td>${
-          r.no
-        }</td><td style="text-align:left;white-space:nowrap">${fmtDisplay(
+        return `<tr><td>${r.no}</td><td style="text-align:left">${fmtDisplay(
           r.dt
         )}</td><td>${
           r.lokasi
         }</td><td>Malam</td><td>22:00</td><td>07:00</td><td>${sigCell}</td><td></td><td>Shift Malam</td></tr>`;
       } else {
-        return `<tr><td>${
-          r.no
-        }</td><td style="text-align:left;white-space:nowrap">${fmtDisplay(
+        return `<tr><td>${r.no}</td><td style="text-align:left">${fmtDisplay(
           r.dt
         )}</td><td>${r.lokasi}</td><td>${r.jadwal}</td><td>${r.mulai}</td><td>${
           r.selesai
@@ -369,117 +359,93 @@ function buildFormHTML() {
     })
     .join("");
 
-  const empSig = S.sigEmp
-    ? `<img src="${S.sigEmp}" style="height:48px;max-width:160px;object-fit:contain;display:block;margin:4px auto">`
+  const empSigImg = S.sigEmp
+    ? `<img src="${S.sigEmp}" style="height:48px;max-width:160px;object-fit:contain;margin:4px auto">`
     : '<div style="height:48px"></div>';
-  const ldrSig = S.sigLdr
-    ? `<img src="${S.sigLdr}" style="height:48px;max-width:160px;object-fit:contain;display:block;margin:4px auto">`
+  const ldrSigImg = S.sigLdr
+    ? `<img src="${S.sigLdr}" style="height:48px;max-width:160px;object-fit:contain;margin:4px auto">`
     : '<div style="height:48px"></div>';
-  const tanggalBuat = S.spl.tgl
-    ? `Tanggal : ${S.spl.tgl}`
-    : "Tanggal : _______________";
-  const lokPrint = lokasi || "Yogyakarta";
 
-  const page1 = `
-    <div class="form-doc" style="padding:6mm 6mm 8mm 6mm">
-      <p style="text-align:center;font-weight:bold;font-size:12pt;margin:0 0 5px 0">${title}</p>
-      <table style="width:100%;border-collapse:collapse;margin-bottom:5px">
+  let finalHTML = `
+    <div class="form-doc" style="padding:6mm">
+      <p style="text-align:center;font-weight:bold;font-size:12pt;margin-bottom:10px">${
+        isShift ? "FORM SHIFT MALAM" : "FORM TUNJANGAN KERJA"
+      }</p>
+      <table style="width:100%;margin-bottom:10px">
         <tr>
-          <td style="vertical-align:top;width:58%">
-            <table class="form-info" style="min-width:220px">
-              <tr><td style="width:92px">Nama Lengkap</td><td style="width:8px">:</td><td>${
+          <td style="width:60%">
+            <table class="form-info">
+              <tr><td>Nama</td><td>:</td><td>${
                 nama || "_______________"
               }</td></tr>
               <tr><td>Posisi</td><td>:</td><td>${
                 posisi || "_______________"
               }</td></tr>
-              <tr><td>Lokasi</td><td>:</td><td>${lokPrint}</td></tr>
-              <tr><td>NIK Biznet</td><td>:</td><td>${
+              <tr><td>Lokasi</td><td>:</td><td>${
+                lokasi || "_______________"
+              }</td></tr>
+              <tr><td>NIK</td><td>:</td><td>${
                 nik || "_______________"
               }</td></tr>
             </table>
           </td>
-          <td style="text-align:right;vertical-align:middle">${logosSVG()}</td>
+          <td style="text-align:right;vertical-align:top">${logosSVG()}</td>
         </tr>
       </table>
-      <p style="text-align:center;font-size:9pt;margin:0 0 5px 0"><strong>Periode : ${pt}</strong></p>
+      <p style="text-align:center;font-size:9pt;margin-bottom:10px"><strong>Periode : ${pt}</strong></p>
       <table class="form-tbl">
         <thead>
-          <tr><th rowspan="2" style="width:20px">No</th><th rowspan="2" style="width:62px">Tanggal</th><th rowspan="2">Lokasi</th><th rowspan="2">Jadwal<br>Kerja</th><th colspan="2">Jam Lembur</th><th rowspan="2" style="width:52px">Paraf<br>Karyawan</th><th rowspan="2" style="width:52px">Paraf<br>User</th><th rowspan="2">Keterangan Kegiatan Kerja</th></tr>
-          <tr><th style="width:36px">Mulai</th><th style="width:36px">Selesai</th></tr>
+          <tr><th rowspan="2">No</th><th rowspan="2">Tanggal</th><th rowspan="2">Lokasi</th><th rowspan="2">Jadwal</th><th colspan="2">Jam Lembur</th><th rowspan="2">Paraf</th><th rowspan="2">User</th><th rowspan="2">Keterangan</th></tr>
+          <tr><th>Mulai</th><th>Selesai</th></tr>
         </thead>
         <tbody>${bodyRows}</tbody>
       </table>
-      <div style="margin-top:7px;font-size:7.5pt">
-        <u>Keterangan :</u>
-        ${
-          isShift
-            ? `<div style="margin-left:10px">1. Harap diisi dengan jelas dan benar untuk kelancaran pembayaran gaji/upah lembur.</div><div style="margin-left:10px">2. Bila lembar absensi ini tidak diisi lengkap, termasuk tugas kerja lembur dan tandatangan superior, lemburan tidak akan diproses.</div>`
-            : `<div style="margin-left:10px">1. Harap diisi dengan jelas dan benar untuk kelancaran pembayaran gaji/upah lembur.</div><div style="margin-left:10px">2. Bila lembar absensi ini tidak diisi lengkap, termasuk tugas kerja lembur dan tandatangan superior, lemburan tidak akan diproses.</div>`
-        }
-      </div>
-      <table style="width:100%;border-collapse:collapse;margin-top:12px">
+      <table style="width:100%;margin-top:20px;text-align:center">
         <tr>
-          <td style="width:50%;text-align:center;padding:3px;vertical-align:bottom">
-            ${
-              isShift
-                ? "Karyawan yang membuat absensi"
-                : "Karyawan yang membuat absensi,"
-            }
-            ${empSig}
-            <div style="font-size:8.5pt">(${nama || "_______________"})</div>
-            ${!isShift ? `<div style="font-size:8pt">${tanggalBuat}</div>` : ""}
-          </td>
-          <td style="width:50%;text-align:center;padding:3px;vertical-align:bottom">
-            ${isShift ? "Mengetahui Atasan" : "Mengetahui atasan,"}
-            ${ldrSig}
-            <div style="font-size:8.5pt">(${leader || "_______________"})</div>
-            ${!isShift ? `<div style="font-size:8pt">${tanggalBuat}</div>` : ""}
-          </td>
+          <td>Pembuat,<br>${empSigImg}( ${nama || "__________"} )</td>
+          <td>Atasan,<br>${ldrSigImg}( ${leader || "__________"} )</td>
         </tr>
       </table>
     </div>`;
 
-  if (isShift) return page1;
+  // 2. HALAMAN SELANJUTNYA (Satu Halaman Per SPL)
+  if (!isShift) {
+    const activeRows = S.rows.filter((r) => r.on);
+    activeRows.forEach((row) => {
+      const tglStr = fmtDisplay(row.dt);
+      const hariStr = HR[row.dt.getDay()];
 
-  const splLokasi = lokPrint;
-  const splDate = S.spl.tgl || "__ / __ / ____";
-  const splHari = S.spl.hari || "___________";
-  const splWaktu = S.spl.waktu || "___:___ s/d ___:___";
-  const splKep = S.spl.keperluan || "_______________";
+      finalHTML += `
+        <div class="form-doc pg-break" style="padding:15mm 20mm">
+          <p style="text-align:center;font-weight:bold;font-size:14pt;margin-bottom:40px;text-decoration:underline">SURAT PERINTAH LEMBUR</p>
+          <p style="margin-bottom:20px">Diberikan perintah lembur kepada:</p>
+          <table style="width:100%;margin-left:20px;margin-bottom:30px;line-height:2">
+            <tr><td style="width:140px">Nama</td><td>: ${
+              nama || "__________"
+            }</td></tr>
+            <tr><td>Jabatan / Lokasi</td><td>: ${posisi || "__________"} / ${
+        row.lokasi
+      }</td></tr>
+            <tr><td>Hari / Tanggal</td><td>: ${hariStr}, ${tglStr}</td></tr>
+            <tr><td>Waktu Lembur</td><td>: ${row.mulai || "___"} s/d ${
+        row.selesai || "___"
+      }</td></tr>
+            <tr><td>Keperluan</td><td>: ${row.ket || "Tugas Kantor"}</td></tr>
+          </table>
+          <p>Demikian surat perintah ini dibuat untuk dapat dilaksanakan dengan penuh tanggung jawab.</p>
+          <div style="margin-top:60px;text-align:right;margin-right:20px">
+            ${row.lokasi}, ${tglStr}<br>
+            Menyetujui,<br>
+            ${ldrSigImg}
+            <br>
+            <strong>${leader || "__________"}</strong><br>
+            <span style="font-size:9pt">Home Care Leader</span>
+          </div>
+        </div>`;
+    });
+  }
 
-  const page2 = `
-    <div class="form-doc pg-break" style="padding:15mm 18mm">
-      <p style="text-align:center;font-weight:bold;font-size:12pt;margin:0 0 22px 0">Surat Perintah Lembur</p>
-      <p style="margin:0 0 14px 0;font-size:9pt">Dengan ini menginstruksikan kepada :</p>
-      <table style="border-collapse:collapse;margin-left:18px;margin-bottom:18px;font-size:9pt">
-        <tr><td style="width:130px;padding:3px 0">Nama</td><td style="padding:3px 5px">:</td><td style="padding:3px 0">${
-          nama || "_______________"
-        }</td></tr>
-        <tr><td style="padding:3px 0">Jabatan</td><td style="padding:3px 5px">:</td><td style="padding:3px 0">${
-          posisi ? posisi + " " + splLokasi : "_______________"
-        }</td></tr>
-        <tr><td style="padding:3px 0">Hari / Tanggal</td><td style="padding:3px 5px">:</td><td style="padding:3px 0">${splHari} / ${splDate}</td></tr>
-        <tr><td style="padding:3px 0">Waktu</td><td style="padding:3px 5px">:</td><td style="padding:3px 0">${splWaktu}</td></tr>
-        <tr><td style="padding:3px 0">Keperluan Lembur</td><td style="padding:3px 5px">:</td><td style="padding:3px 0">${splKep}</td></tr>
-      </table>
-      <p style="font-size:9pt;margin:0 0 30px 0">Demikian Surat Perintah Lembur (SPL) ini dibuat untuk dijalankan dengan baik.</p>
-      <table style="width:100%;border-collapse:collapse">
-        <tr>
-          <td style="width:50%"></td>
-          <td style="width:50%;text-align:center;padding:3px;vertical-align:top">
-            <div style="font-size:9pt">${splLokasi}, ${splDate}</div>
-            <div style="font-size:9pt;margin-top:2px">Mengetahui / Menyetujui</div>
-            ${ldrSig}
-            <div style="font-size:9pt">${leader || "_______________"}</div>
-            <div style="font-size:8.5pt">Home Care Leader</div>
-          </td>
-        </tr>
-      </table>
-      <div style="margin-top:35px;font-size:8pt"><u>Keterangan :</u><div style="margin-left:10px">1. Pastikan Minimal Jam Lembur karyawan dan jam mulai lemburnya.</div></div>
-    </div>`;
-
-  return page1 + page2;
+  return finalHTML;
 }
 
 // ─────────────────────────────────────────
