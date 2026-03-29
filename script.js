@@ -340,21 +340,26 @@ function buildFormHTML() {
         return `<tr><td>${r.no}</td><td style="text-align:left">${fmtDisplay(
           r.dt
         )}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
-      const sigCell = S.sigEmp
-        ? `<img src="${S.sigEmp}" style="height:16px;max-width:44px;object-fit:contain">`
+      const sigCellEmp = S.sigEmp
+        ? `<img src="${S.sigEmp}" style="height:16px;max-width:44px;object-fit:contain;display:inline-block">`
+        : "";
+      const sigCellLdr = S.sigLdr
+        ? `<img src="${S.sigLdr}" style="height:16px;max-width:44px;object-fit:contain;display:inline-block">`
         : "";
       if (isShift) {
         return `<tr><td>${r.no}</td><td style="text-align:left">${fmtDisplay(
           r.dt
         )}</td><td>${
           r.lokasi
-        }</td><td>Malam</td><td>22:00</td><td>07:00</td><td>${sigCell}</td><td></td><td>Shift Malam</td></tr>`;
+        }</td><td>Malam</td><td>22:00</td><td>07:00</td><td>${sigCellEmp}</td><td>${sigCellLdr}</td><td>Shift Malam</td></tr>`;
       } else {
         return `<tr><td>${r.no}</td><td style="text-align:left">${fmtDisplay(
           r.dt
         )}</td><td>${r.lokasi}</td><td>${r.jadwal}</td><td>${r.mulai}</td><td>${
           r.selesai
-        }</td><td>${sigCell}</td><td></td><td>${r.ket}</td></tr>`;
+        }</td><td>${sigCellEmp}</td><td>${sigCellLdr}</td><td>${
+          r.ket
+        }</td></tr>`;
       }
     })
     .join("");
@@ -365,7 +370,9 @@ function buildFormHTML() {
   const ldrSigImg = S.sigLdr
     ? `<img src="${S.sigLdr}" style="height:48px;max-width:160px;object-fit:contain;margin:4px auto">`
     : '<div style="height:48px"></div>';
-
+  const ldrSignImg = S.sigLdr
+    ? `<img src="${S.sigLdr}" style="height:72px;max-width:160px;object-fit:contain;display:block;margin:4px 0 4px auto">`
+    : '<div style="height:48px"></div>';
   let finalHTML = `
     <div class="form-doc" style="padding:6mm">
       <p style="text-align:center;font-weight:bold;font-size:12pt;margin-bottom:10px">${
@@ -394,16 +401,40 @@ function buildFormHTML() {
       </table>
       <p style="text-align:center;font-size:9pt;margin-bottom:10px"><strong>Periode : ${pt}</strong></p>
       <table class="form-tbl">
-        <thead>
-          <tr><th rowspan="2">No</th><th rowspan="2">Tanggal</th><th rowspan="2">Lokasi</th><th rowspan="2">Jadwal</th><th colspan="2">Jam Lembur</th><th rowspan="2">Paraf</th><th rowspan="2">User</th><th rowspan="2">Keterangan</th></tr>
-          <tr><th>Mulai</th><th>Selesai</th></tr>
-        </thead>
-        <tbody>${bodyRows}</tbody>
-      </table>
+      <thead>
+        <tr>
+          <th rowspan="2" style="width:20px">No</th>
+          <th rowspan="2" style="width:62px">Tanggal</th>
+          <th rowspan="2" style="width:80px">Lokasi</th>
+          <th rowspan="2">Jadwal<br>Kerja</th>
+          <th colspan="2">Jam Lembur</th>
+          <th rowspan="2" style="width:52px">Paraf<br>Karyawan</th>
+          <th rowspan="2" style="width:52px">Paraf<br>User</th>
+          <th rowspan="2">Keterangan Kegiatan Kerja</th>
+        </tr>
+        <tr>
+          <th style="width:46px">Mulai</th>
+          <th style="width:36px">Selesai</th>
+        </tr>
+      </thead>
+      <tbody>${bodyRows}</tbody>
+    </table>
+      <div style="margin-top:7px;font-size:7.5pt">
+        <u>Keterangan :</u>
+        ${
+          isShift
+            ? `<div style="margin-left:10px">1. Harap diisi dengan jelas dan benar untuk kelancaran pembayaran gaji/upah lembur.</div><div style="margin-left:10px">2. Bila lembar absensi ini tidak diisi lengkap, termasuk tugas kerja lembur dan tandatangan superior, lemburan tidak akan diproses.</div>`
+            : `<div style="margin-left:10px">1. Harap diisi dengan jelas dan benar untuk kelancaran pembayaran gaji/upah lembur.</div><div style="margin-left:10px">2. Bila lembar absensi ini tidak diisi lengkap, termasuk tugas kerja lembur dan tandatangan superior, lemburan tidak akan diproses.</div>`
+        }
+      </div>
       <table style="width:100%;margin-top:20px;text-align:center">
         <tr>
-          <td>Pembuat,<br>${empSigImg}( ${nama || "__________"} )</td>
-          <td>Atasan,<br>${ldrSigImg}( ${leader || "__________"} )</td>
+          <td>Karyawan yang membuat absensi,<br>${empSigImg}( ${
+    nama || "__________"
+  } )</td>
+          <td>Mengetahui atasan,<br>${ldrSigImg}( ${
+    leader || "__________"
+  } )</td>
         </tr>
       </table>
     </div>`;
@@ -435,12 +466,12 @@ function buildFormHTML() {
           <p>Demikian surat perintah ini dibuat untuk dapat dilaksanakan dengan penuh tanggung jawab.</p>
           <div style="margin-top:60px;text-align:right;margin-right:20px">
             ${row.lokasi}, ${tglStr}<br>
-            Menyetujui,<br>
-            ${ldrSigImg}
-            <br>
+            Mengetahui / Menyetujui,<br>
+            ${ldrSignImg}
             <strong>${leader || "__________"}</strong><br>
             <span style="font-size:9pt">Home Care Leader</span>
           </div>
+          <div style="margin-top:35px;font-size:8pt"><u>Keterangan :</u><div style="margin-left:10px">1. Pastikan Minimal Jam Lembur karyawan dan jam mulai lemburnya.</div></div>
         </div>`;
     });
   }
