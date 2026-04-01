@@ -4,6 +4,16 @@
 let MN = [];
 let HR = [];
 
+// Jadwal preset: kode → { label, mulai, selesai }
+const JADWAL_MAP = {
+  P1: { label: "P1", mulai: "06:00", selesai: "15:00" },
+  P2: { label: "P2", mulai: "08:00", selesai: "17:00" },
+  P3: { label: "P3", mulai: "10:00", selesai: "19:00" },
+  P4: { label: "P4", mulai: "12:00", selesai: "21:00" },
+  S:  { label: "S",  mulai: "15:00", selesai: "00:00" },
+  M:  { label: "M",  mulai: "22:00", selesai: "07:00" },
+};
+
 const S = {
   type: "shift",
   period: "",
@@ -174,15 +184,16 @@ function buildRowHTML(r, i) {
       <td><input class="row-inp" value="${
         r.lokasi
       }"  ${dis} oninput="updRow(${i},'lokasi',this.value)"  style="min-width:80px"></td>
-      <td><input class="row-inp" value="${
-        r.jadwal
-      }" ${dis} oninput="updRow(${i},'jadwal',this.value)"  style="width:55px" placeholder="S"></td>
-      <td><input class="row-inp" value="${
-        r.mulai
-      }"  ${dis} oninput="updRow(${i},'mulai',this.value)"   style="width:62px" placeholder="15:00"></td>
-      <td><input class="row-inp" value="${
-        r.selesai
-      }"${dis} oninput="updRow(${i},'selesai',this.value)" style="width:62px" placeholder="00:00"></td>
+      <td>
+        <select class="row-inp" style="width:62px;padding:3px 4px" ${dis} onchange="setJadwal(${i},this.value)">
+          <option value="">—</option>
+          ${Object.keys(JADWAL_MAP).map(k =>
+            `<option value="${k}" ${r.jadwal === k ? "selected" : ""}>${JADWAL_MAP[k].label}</option>`
+          ).join("")}
+        </select>
+      </td>
+      <td><input class="row-inp" id="inp-mulai-${i}"   value="${r.mulai}"   ${dis} oninput="updRow(${i},'mulai',this.value)"   style="width:62px" placeholder="15:00"></td>
+      <td><input class="row-inp" id="inp-selesai-${i}" value="${r.selesai}" ${dis} oninput="updRow(${i},'selesai',this.value)" style="width:62px" placeholder="00:00"></td>
       <td><input class="row-inp" value="${
         r.ket
       }"    ${dis} oninput="updRow(${i},'ket',this.value)"     style="min-width:100px"></td>`;
@@ -215,6 +226,20 @@ function autoSPL(i) {
 
 function updRow(i, f, v) {
   S.rows[i][f] = v;
+}
+
+// Pilih jadwal dari dropdown → auto-fill mulai & selesai, tapi tetap bisa diedit manual
+function setJadwal(i, val) {
+  S.rows[i].jadwal = val;
+  if (val && JADWAL_MAP[val]) {
+    const preset = JADWAL_MAP[val];
+    S.rows[i].mulai   = preset.mulai;
+    S.rows[i].selesai = preset.selesai;
+    const elMulai   = document.getElementById(`inp-mulai-${i}`);
+    const elSelesai = document.getElementById(`inp-selesai-${i}`);
+    if (elMulai)   elMulai.value   = preset.mulai;
+    if (elSelesai) elSelesai.value = preset.selesai;
+  }
 }
 function applyDefLokasi(v) {
   S.defLokasi = v;
