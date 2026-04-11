@@ -16,6 +16,7 @@ const JADWAL_MAP = {
 
 const S = {
   type: "shift",
+  company: "DGM",           // "DGM" = Duta Generasi Mandiri | "MKU" = Mitra Kerja Utama
   period: "",
   emp: { nama: "", posisi: "", lokasi: "", nik: "", leader: "" },
   defLokasi: "Yogyakarta",
@@ -37,6 +38,7 @@ async function init() {
     HR = data.days;
 
     buildPeriodOptions();
+    renderCompanyBadge();
     renderHead();
     renderRows();
   } catch (error) {
@@ -341,13 +343,40 @@ function periodText() {
   return `16 ${MN[sM - 1]} ${sY} s/d 15 ${MN[eM - 1]} ${eY}`;
 }
 
+// ─────────────────────────────────────────
+// COMPANY / OUTSOURCING
+// ─────────────────────────────────────────
+function setCompany(val) {
+  S.company = val;
+  // Sinkronkan dropdown jika dipanggil dari tempat lain
+  const sel = document.getElementById("sel-company");
+  if (sel && sel.value !== val) sel.value = val;
+  // Perbarui label preview di sebelah dropdown
+  renderCompanyBadge();
+}
+
+function renderCompanyBadge() {
+  const el = document.getElementById("company-badge");
+  if (!el) return;
+  if (S.company === "DGM") {
+    el.innerHTML = `<span style="font-weight:800;font-size:13px">
+      <span style="color:#ea580c">D</span><span style="color:#16a34a">G</span><span style="color:#1d4ed8">M</span>
+    </span>
+    <span style="font-size:11px;color:#6b7280;margin-left:4px">Duta Generasi Mandiri</span>`;
+  } else {
+    el.innerHTML = `<span style="font-weight:800;font-size:13px;color:#0369a1">MKU</span>
+    <span style="font-size:11px;color:#6b7280;margin-left:4px">Mitra Kerja Utama</span>`;
+  }
+}
+
 function logosSVG() {
-  // Pastikan file logoBiznet.png ada di folder yang sama dengan index.html
-  const pathDGM = "images/logoDGM.png"; // jika ada
+  const pathOutsourcing = S.company === "MKU"
+    ? "images/logoMKU.png"
+    : "images/logoDGM.png";
   const pathBiznet = "images/logoBiznet.png";
 
   return `
-    <img src="${pathDGM}" width="64" height="36" style="display:inline-block;vertical-align:middle;margin-right:6px" alt="Logo DGM">
+    <img src="${pathOutsourcing}" width="64" height="36" style="display:inline-block;vertical-align:middle;margin-right:6px" alt="Logo ${S.company}">
     <img src="${pathBiznet}" width="78" height="36" style="display:inline-block;vertical-align:middle" alt="Logo Biznet">
   `;
 }
