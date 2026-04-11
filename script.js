@@ -425,7 +425,7 @@ function buildFormHTML() {
     ? `<img src="${S.sigLdr}" style="height:48px;max-width:160px;object-fit:contain;margin:4px auto">`
     : '<div style="height:48px"></div>';
   const ldrSignImg = S.sigLdr
-    ? `<img src="${S.sigLdr}" style="height:72px;max-width:160px;object-fit:contain;display:block;margin:4px 0 4px auto">`
+    ? `<img src="${S.sigLdr}" style="height:72px;max-width:160px;object-fit:contain;display:block;margin:4px auto 4px 0">`
     : '<div style="height:48px"></div>';
   let finalHTML = `
     <div class="form-doc" style="padding:6mm">
@@ -518,7 +518,7 @@ function buildFormHTML() {
             <tr><td>Keperluan</td><td>: ${row.ket || "Tugas Kantor"}</td></tr>
           </table>
           <p>Demikian surat perintah ini dibuat untuk dapat dilaksanakan dengan penuh tanggung jawab.</p>
-          <div style="margin-top:60px;text-align:right;margin-right:20px">
+          <div style="margin-top:60px;text-align:left;margin-left:0px">
             ${row.lokasi}, ${tglStr}<br>
             Mengetahui / Menyetujui,<br>
             ${ldrSignImg}
