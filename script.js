@@ -518,14 +518,14 @@ function buildFormHTML() {
             <tr><td>Keperluan</td><td>: ${row.ket || "Tugas Kantor"}</td></tr>
           </table>
           <p>Demikian surat perintah ini dibuat untuk dapat dilaksanakan dengan penuh tanggung jawab.</p>
-          <div style="margin-top:60px;text-align:left;margin-left:0px">
+          <div style="margin-top:8px;text-align:left;margin-left:0px">
             ${row.lokasi}, ${tglStr}<br>
             Mengetahui / Menyetujui,<br>
             ${ldrSignImg}
             <strong>${leader || "__________"}</strong><br>
             <span style="font-size:9pt">Home Care Leader</span>
           </div>
-          <div style="margin-top:35px;font-size:8pt"><u>Keterangan :</u><div style="margin-left:10px">1. Pastikan Minimal Jam Lembur karyawan dan jam mulai lemburnya.</div></div>
+          <div style="margin-top:4px;font-size:8pt"><u>Keterangan :</u><div style="margin-left:10px">1. Pastikan Minimal Jam Lembur karyawan dan jam mulai lemburnya.</div></div>
         </div>`;
     });
   }
