@@ -387,6 +387,16 @@ function buildFormHTML() {
   const isShift = S.type === "shift";
   const pt = periodText();
 
+  // Tanggal form dibuat: diambil dari baris lembur pertama yang aktif
+let tanggalForm = "_______________";
+if (!isShift) {
+  const firstActive = S.rows.find((r) => r.on);
+  if (firstActive) {
+ const now = new Date();
+  tanggalForm = `${now.getDate()} ${MN[now.getMonth()]} ${now.getFullYear()}`;
+  }
+}
+
   // 1. HALAMAN PERTAMA (Tabel Rekap)
   const bodyRows = S.rows
     .map((r) => {
@@ -425,7 +435,7 @@ function buildFormHTML() {
     ? `<img src="${S.sigLdr}" style="height:48px;max-width:160px;object-fit:contain;margin:4px auto">`
     : '<div style="height:48px"></div>';
   const ldrSignImg = S.sigLdr
-    ? `<img src="${S.sigLdr}" style="height:72px;max-width:160px;object-fit:contain;display:block;margin:4px auto 4px 0">`
+  ? `<img src="${S.sigLdr}" style="height:48px;max-width:140px;object-fit:contain;display:block;margin:2px 0">`
     : '<div style="height:48px"></div>';
   let finalHTML = `
     <div class="form-doc" style="padding:6mm">
@@ -483,12 +493,18 @@ function buildFormHTML() {
       </div>
       <table style="width:100%;margin-top:20px;text-align:center">
         <tr>
-          <td>Karyawan yang membuat absensi,<br>${empSigImg}( ${
-    nama || "__________"
-  } )</td>
-          <td>Mengetahui atasan,<br>${ldrSigImg}( ${
-    leader || "__________"
-  } )</td>
+          <td style="vertical-align:top">
+            Karyawan yang membuat absensi,<br>
+            ${empSigImg}
+            ( ${nama || "__________"} )
+            ${!isShift ? `<br><br>Tanggal : ${tanggalForm}` : ""}
+          </td>
+          <td style="vertical-align:top">
+            Mengetahui atasan,<br>
+            ${ldrSigImg}
+            ( ${leader || "__________"} )
+            ${!isShift ? `<br><br>Tanggal : ${tanggalForm}` : ""}
+          </td>
         </tr>
       </table>
     </div>`;
@@ -497,35 +513,70 @@ function buildFormHTML() {
   if (!isShift) {
     const activeRows = S.rows.filter((r) => r.on);
     activeRows.forEach((row) => {
-      const tglStr = fmtDisplay(row.dt);
-      const hariStr = HR[row.dt.getDay()];
+      const tglStr    = fmtDisplay(row.dt);
+      const hariStr   = HR[row.dt.getDay()];
+      const tglLong   = `${row.dt.getDate()} ${MN[row.dt.getMonth()]} ${row.dt.getFullYear()}`;
 
       finalHTML += `
-        <div class="form-doc pg-break" style="padding:15mm 20mm">
-          <p style="text-align:center;font-weight:bold;font-size:14pt;margin-bottom:40px;text-decoration:underline">SURAT PERINTAH LEMBUR</p>
-          <p style="margin-bottom:20px">Diberikan perintah lembur kepada:</p>
-          <table style="width:100%;margin-left:20px;margin-bottom:30px;line-height:2">
-            <tr><td style="width:140px">Nama</td><td>: ${
-              nama || "__________"
-            }</td></tr>
-            <tr><td>Jabatan / Lokasi</td><td>: ${posisi || "__________"} / ${
-        row.lokasi
-      }</td></tr>
-            <tr><td>Hari / Tanggal</td><td>: ${hariStr}, ${tglStr}</td></tr>
-            <tr><td>Waktu Lembur</td><td>: ${row.mulai || "___"} s/d ${
-        row.selesai || "___"
-      }</td></tr>
-            <tr><td>Keperluan</td><td>: ${row.ket || "Tugas Kantor"}</td></tr>
-          </table>
-          <p>Demikian surat perintah ini dibuat untuk dapat dilaksanakan dengan penuh tanggung jawab.</p>
-          <div style="margin-top:8px;text-align:left;margin-left:0px">
-            ${row.lokasi}, ${tglStr}<br>
-            Mengetahui / Menyetujui,<br>
-            ${ldrSignImg}
-            <strong>${leader || "__________"}</strong><br>
-            <span style="font-size:9pt">Home Care Leader</span>
-          </div>
-          <div style="margin-top:4px;font-size:8pt"><u>Keterangan :</u><div style="margin-left:10px">1. Pastikan Minimal Jam Lembur karyawan dan jam mulai lemburnya.</div></div>
+        <div class="form-doc pg-break" style="padding:6mm 10mm; max-width:100%">
+
+          <p style="text-align:center;font-weight:bold;font-size:13pt;
+                    margin-bottom:14px;text-decoration:underline">
+            Surat Perintah Lembur
+          </p>
+
+          <!-- ── BOX / BORDER ── -->
+          <div style="border:1px solid #000;padding:6mm 8mm;width:100%">
+
+            <p style="margin:0 0 4px 0">Dengan ini menginstruksikan kepada :</p>
+
+            <table style="width:100%;margin-left:8px;margin-bottom:2px;line-height:1.4;font-size:8pt">
+              <tr>
+                <td style="width:130px">Nama</td>
+                <td>: ${nama || "__________"}</td>
+              </tr>
+              <tr>
+                <td>Jabatan</td>
+                <td>: ${posisi || "__________"} ${row.lokasi}</td>
+              </tr>
+              <tr>
+                <td>Hari / Tanggal</td>
+                <td>: ${hariStr} / ${tglStr}</td>
+              </tr>
+              <tr>
+                <td>Waktu</td>
+                <td>: ${row.mulai || "___"} s/d ${row.selesai || "___"}</td>
+              </tr>
+              <tr>
+                <td>Keperluan Lembur</td>
+                <td>: ${row.ket || "Tugas Kantor"}</td>
+              </tr>
+            </table>
+
+            <p style="margin:0 0 2px 0">
+              Demikian Surat Perintah Lembur (SPL) ini dibuat untuk dijalankan dengan baik.
+            </p>
+
+            <div style="margin-top:4px;text-align:left">
+              ${row.lokasi}, ${tglStr}<br>
+              Mengetahui / Menyetujui
+            </div>
+
+            <div style="margin-top:4px;text-align:left">
+              ${ldrSignImg}
+              <strong>${leader || "__________"}</strong><br>
+              <span style="font-size:9pt">Home Care Leader</span>
+            </div>
+
+            <div style="margin-top:4px;font-size:8pt">
+              <u>Keterangan :</u>
+              <div style="margin-left:10px">
+                1. Pastikan Minimal Jam Lembur karyawan dan jam mulai lemburnya.
+              </div>
+            </div>
+
+          </div><!-- end box -->
+
         </div>`;
     });
   }
