@@ -10,6 +10,10 @@ body {
 @media print {
   .no-print {
     display: none !important;
+    .form-doc {
+    width: 100%;
+    max-width: 100%;
+  }
   }
   #print-area {
     display: block !important;
