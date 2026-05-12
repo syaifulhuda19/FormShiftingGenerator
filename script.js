@@ -387,15 +387,10 @@ function buildFormHTML() {
   const isShift = S.type === "shift";
   const pt = periodText();
 
-  // Tanggal form dibuat: diambil dari baris lembur pertama yang aktif
-let tanggalForm = "_______________";
-if (!isShift) {
-  const firstActive = S.rows.find((r) => r.on);
-  if (firstActive) {
- const now = new Date();
+  // Tanggal form dibuat: diambil dari tanggal dibuatnya form
+  let tanggalForm = "_______________";
+  const now = new Date();
   tanggalForm = `${now.getDate()} ${MN[now.getMonth()]} ${now.getFullYear()}`;
-  }
-}
 
   // 1. HALAMAN PERTAMA (Tabel Rekap)
   const bodyRows = S.rows
@@ -497,13 +492,13 @@ if (!isShift) {
             Karyawan yang membuat absensi,<br>
             ${empSigImg}
             ( ${nama || "__________"} )
-            ${!isShift ? `<br><br>Tanggal : ${tanggalForm}` : ""}
+            ${!isShift ? `<br>Tanggal : ${tanggalForm}` : `<br>Tanggal : ${tanggalForm}`}
           </td>
           <td style="vertical-align:top">
             Mengetahui atasan,<br>
             ${ldrSigImg}
             ( ${leader || "__________"} )
-            ${!isShift ? `<br><br>Tanggal : ${tanggalForm}` : ""}
+            ${!isShift ? `<br>Tanggal : ${tanggalForm}` : `<br>Tanggal : ${tanggalForm}`}
           </td>
         </tr>
       </table>
@@ -558,7 +553,7 @@ if (!isShift) {
             </p>
 
             <div style="margin-top:4px;text-align:left">
-              ${row.lokasi}, ${tglStr}<br>
+              ${row.lokasi}, ${tanggalForm}<br>
               Mengetahui / Menyetujui
             </div>
 
